@@ -9,61 +9,37 @@
 
 
 #### Workspace setup ####
-library(tidyverse)
 library(testthat)
+library(arrow)
+library(dplyr)
 
-data <- read_csv("data/02-analysis_data/analysis_data.csv")
+# Load the cleaned data
+file_path <- "data/02-analysis_data/analysis_data.parquet"
+if (file.exists(file_path)) {
+  analysis_data <- read_parquet(file_path)
+} else {
+  stop("File not found: Ensure 'analysis_data.parquet' is in 'data/02-analysis_data/'.")
+}
 
+#### Basic Tests ####
 
-#### Test data ####
-# Test that the dataset has 151 rows - there are 151 divisions in Australia
-test_that("dataset has 151 rows", {
-  expect_equal(nrow(analysis_data), 151)
+test_that("Data structure is correct", {
+  # Check that the dataset has the expected 9 columns
+  expect_equal(ncol(analysis_data), 9)
+  
+  # Check that column names are as expected
+  expected_columns <- c("poll_id", "pollster", "candidate_name", "sample_size", 
+                        "pct", "state", "end_date", "num_harris", "numeric_grade")
+  expect_equal(names(analysis_data), expected_columns)
 })
 
-# Test that the dataset has 3 columns
-test_that("dataset has 3 columns", {
-  expect_equal(ncol(analysis_data), 3)
+test_that("No missing values in critical columns", {
+  # Ensure no missing values in critical columns
+  critical_columns <- c("poll_id", "pollster", "candidate_name", "sample_size", 
+                        "pct", "state", "end_date", "num_harris", "numeric_grade")
+  for (col in critical_columns) {
+    expect_false(any(is.na(analysis_data[[col]])))
+  }
 })
 
-# Test that the 'division' column is character type
-test_that("'division' is character", {
-  expect_type(analysis_data$division, "character")
-})
-
-# Test that the 'party' column is character type
-test_that("'party' is character", {
-  expect_type(analysis_data$party, "character")
-})
-
-# Test that the 'state' column is character type
-test_that("'state' is character", {
-  expect_type(analysis_data$state, "character")
-})
-
-# Test that there are no missing values in the dataset
-test_that("no missing values in dataset", {
-  expect_true(all(!is.na(analysis_data)))
-})
-
-# Test that 'division' contains unique values (no duplicates)
-test_that("'division' column contains unique values", {
-  expect_equal(length(unique(analysis_data$division)), 151)
-})
-
-# Test that 'state' contains only valid Australian state or territory names
-valid_states <- c("New South Wales", "Victoria", "Queensland", "South Australia", "Western Australia", 
-                  "Tasmania", "Northern Territory", "Australian Capital Territory")
-test_that("'state' contains valid Australian state names", {
-  expect_true(all(analysis_data$state %in% valid_states))
-})
-
-# Test that there are no empty strings in 'division', 'party', or 'state' columns
-test_that("no empty strings in 'division', 'party', or 'state' columns", {
-  expect_false(any(analysis_data$division == "" | analysis_data$party == "" | analysis_data$state == ""))
-})
-
-# Test that the 'party' column contains at least 2 unique values
-test_that("'party' column contains at least 2 unique values", {
-  expect_true(length(unique(analysis_data$party)) >= 2)
-})
+cat("Basic tests for analysis_data.parquet passed successfully!\n")
