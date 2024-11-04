@@ -1,102 +1,3 @@
-
-user:
-Compare the second one with the first one. Which one is better?
-#### Preamble ####
-# Purpose: Cleans the raw elections data and filters high-quality polls data
-# Author: Yunkyung Ko
-# Date: 19 October 2024
-# Contact: yunkyung.ko@mail.utoronto.ca
-# License: MIT
-# Pre-requisites: Need to have downloaded the data.
-# Any other information needed? None
-
-#### Workspace setup ####
-library(tidyverse)
-library(arrow)
-
-#### Clean data ####
-# Read in the data and clean variable names
-raw_elections_data <- read_csv("data/01-raw_data/raw_elections_data.csv")
-elections_data <-
-  raw_elections_data |>
-  janitor::clean_names() |>
-  select(pollster, numeric_grade, pollscore, state, end_date, candidate_name, sample_size, pct) |>
-  tidyr::drop_na() |>
-  mutate(
-    state = if_else(is.na(state), "National", state) # Handle missing states as "National"
-  ) |>
-  group_by(state) |>
-  mutate(
-    state_count = n() # Count the number of polls per state
-  ) |>
-  ungroup() |>
-  mutate(
-    state = if_else(state_count < 60, "Other", state) # Assign "Other" for states with fewer than 60 polls
-  ) |>
-  select(-state_count) # Remove the 'state_count' column
-
-# Remove outliers (pct values greater than 100 or less than 0)
-elections_data <- elections_data |>
-  filter(pct >= 0 & pct <= 100)
-
-# Filter data to Harris estimates based on high-quality polls after she declared
-harris_data <-
-  elections_data |>
-  filter(
-    candidate_name == "Kamala Harris",
-    numeric_grade >= 2.7 # Need to investigate this choice - come back and fix.
-  ) |>
-  mutate(
-    state = if_else(is.na(state), "National", state),
-    end_date = mdy(end_date)
-  ) |>
-  filter(end_date >= as.Date("2024-07-21")) |> # When Harris declared
-  mutate(
-    num_harris = round((pct / 100) * sample_size, 0) # Need number not percent for some models
-  ) |>
-  group_by(pollster) |>
-  filter(n() > 20) |> # Filter for pollsters with more than 20 polls
-  ungroup()  |>
-  filter(pct >= 0 & pct <= 100)
-
-
-#### Save data ####
-write_csv(elections_data, "data/02-analysis_data/elections_data.csv")
-write_csv(harris_data, "data/02-analysis_data/harris_elections_data.csv")
-
-write_parquet(elections_data, "data/02-analysis_data/elections_data.parquet")
-write_parquet(harris_data, "data/02-analysis_data/harris_elections_data.parquet")分析一下回答用中文
-
-
-chat gpt:
-Compared to the second code snippet, the first code snippet has a clearer structure and more thorough data cleaning steps, suitable for high-quality data processing. Here’s a comparison of the two code snippets:
-
-Summary of Advantages
-
-First Code Snippet (Kamala Harris):
-1. Clear Structure: Contains well-defined comments to explain the purpose of each step (e.g., removing outliers, handling missing values).
-2. Comprehensive Data Cleaning: Includes removing outliers, handling missing values, grouping and categorizing state data (e.g., grouping states with fewer than 60 polls as “Other”) to ensure data quality.
-3. Filtering by Polling Organizations: Groups by polling organization and retains those with more than 20 polls, ensuring representativeness.
-4. Detailed Data Export: Saves in multiple formats (CSV and Parquet), making it adaptable for further analysis.
-
-Second Code Snippet (Donald Trump):
-1. Simplicity and Efficiency: Achieves basic data cleaning and filtering, suitable for quick data exploration and preliminary analysis.
-2. Plotting Section: Differentiates by pollster and pollscore and tries different visualizations (e.g., faceting by pollster), helping quickly identify patterns or anomalies in the data.
-
-Summary of Disadvantages
-
-Disadvantages of the First Code Snippet:
-The more detailed cleaning steps may increase code complexity, making it suitable for more rigorous data cleaning requirements but less for quick data exploration.
-
-Disadvantages of the Second Code Snippet:
-Lacks comprehensive data cleaning steps, performing only basic filtering, which may allow incomplete or anomalous data to affect results.
-Doesn’t apply in-depth filtering for the quality and quantity of data from different polling organizations, potentially introducing bias.
-Contains limited comments, making it harder to understand the data processing logic, which might hinder collaboration or further analysis.
-
-Overall Comparison
-
-The first code snippet has more thorough cleaning and filtering steps, making it suitable for projects requiring strict data accuracy and handling large data volumes. The second snippet is more appropriate for quick analysis, particularly in the exploratory stage where generating results efficiently is important. If the project is time-sensitive or visualization-focused, the second snippet is preferable; however, if data accuracy and reliability are prioritized, the first snippet is clearly superior.
-
 User:
 Modify the second one to include the strengths of the first one. I need it to filter for Trump with numeric_grade above grade_threshold <- 2.7 and select important variables.
 
@@ -264,6 +165,104 @@ saveRDS(model_date_pollster, file = "models/model_date_pollster.rds")
 2. **Color and Transparency Adjustments**: Increased readability by adding alpha transparency to data points, especially in dense areas.
 3. **Facet Wraps and Loess Smoothing**: `facet_wrap` allows visualizing individual pollsters, and `loess` provides a smoothed trend for poll score visualization.
 4. **Color Mapping**: The `scale_color_viridis_c()` function is used for color intensity in poll scores, enhancing readability.
+
+user:
+Compare the second one with the first one. Which one is better?
+#### Preamble ####
+# Purpose: Cleans the raw elections data and filters high-quality polls data
+# Author: 
+# Date: 19 October 2024
+# Contact: 
+# License: MIT
+# Pre-requisites: Need to have downloaded the data.
+# Any other information needed? None
+
+#### Workspace setup ####
+library(tidyverse)
+library(arrow)
+
+#### Clean data ####
+# Read in the data and clean variable names
+raw_elections_data <- read_csv("data/01-raw_data/raw_elections_data.csv")
+elections_data <-
+  raw_elections_data |>
+  janitor::clean_names() |>
+  select(pollster, numeric_grade, pollscore, state, end_date, candidate_name, sample_size, pct) |>
+  tidyr::drop_na() |>
+  mutate(
+    state = if_else(is.na(state), "National", state) # Handle missing states as "National"
+  ) |>
+  group_by(state) |>
+  mutate(
+    state_count = n() # Count the number of polls per state
+  ) |>
+  ungroup() |>
+  mutate(
+    state = if_else(state_count < 60, "Other", state) # Assign "Other" for states with fewer than 60 polls
+  ) |>
+  select(-state_count) # Remove the 'state_count' column
+
+# Remove outliers (pct values greater than 100 or less than 0)
+elections_data <- elections_data |>
+  filter(pct >= 0 & pct <= 100)
+
+# Filter data to Harris estimates based on high-quality polls after she declared
+harris_data <-
+  elections_data |>
+  filter(
+    candidate_name == "Kamala Harris",
+    numeric_grade >= 2.7 # Need to investigate this choice - come back and fix.
+  ) |>
+  mutate(
+    state = if_else(is.na(state), "National", state),
+    end_date = mdy(end_date)
+  ) |>
+  filter(end_date >= as.Date("2024-07-21")) |> # When Harris declared
+  mutate(
+    num_harris = round((pct / 100) * sample_size, 0) # Need number not percent for some models
+  ) |>
+  group_by(pollster) |>
+  filter(n() > 20) |> # Filter for pollsters with more than 20 polls
+  ungroup()  |>
+  filter(pct >= 0 & pct <= 100)
+
+
+#### Save data ####
+write_csv(elections_data, "data/02-analysis_data/elections_data.csv")
+write_csv(harris_data, "data/02-analysis_data/harris_elections_data.csv")
+
+write_parquet(elections_data, "data/02-analysis_data/elections_data.parquet")
+write_parquet(harris_data, "data/02-analysis_data/harris_elections_data.parquet")分析一下回答用中文
+
+
+chat gpt:
+Compared to the second code snippet, the first code snippet has a clearer structure and more thorough data cleaning steps, suitable for high-quality data processing. Here’s a comparison of the two code snippets:
+
+Summary of Advantages
+
+First Code Snippet (Kamala Harris):
+1. Clear Structure: Contains well-defined comments to explain the purpose of each step (e.g., removing outliers, handling missing values).
+2. Comprehensive Data Cleaning: Includes removing outliers, handling missing values, grouping and categorizing state data (e.g., grouping states with fewer than 60 polls as “Other”) to ensure data quality.
+3. Filtering by Polling Organizations: Groups by polling organization and retains those with more than 20 polls, ensuring representativeness.
+4. Detailed Data Export: Saves in multiple formats (CSV and Parquet), making it adaptable for further analysis.
+
+Second Code Snippet (Donald Trump):
+1. Simplicity and Efficiency: Achieves basic data cleaning and filtering, suitable for quick data exploration and preliminary analysis.
+2. Plotting Section: Differentiates by pollster and pollscore and tries different visualizations (e.g., faceting by pollster), helping quickly identify patterns or anomalies in the data.
+
+Summary of Disadvantages
+
+Disadvantages of the First Code Snippet:
+The more detailed cleaning steps may increase code complexity, making it suitable for more rigorous data cleaning requirements but less for quick data exploration.
+
+Disadvantages of the Second Code Snippet:
+Lacks comprehensive data cleaning steps, performing only basic filtering, which may allow incomplete or anomalous data to affect results.
+Doesn’t apply in-depth filtering for the quality and quantity of data from different polling organizations, potentially introducing bias.
+Contains limited comments, making it harder to understand the data processing logic, which might hinder collaboration or further analysis.
+
+Overall Comparison
+
+The first code snippet has more thorough cleaning and filtering steps, making it suitable for projects requiring strict data accuracy and handling large data volumes. The second snippet is more appropriate for quick analysis, particularly in the exploratory stage where generating results efficiently is important. If the project is time-sensitive or visualization-focused, the second snippet is preferable; however, if data accuracy and reliability are prioritized, the first snippet is clearly superior.
 
 user:Can you explain the significance of more mapping variables?
 
