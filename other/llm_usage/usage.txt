@@ -1,0 +1,849 @@
+
+user:
+Compare the second one with the first one. Which one is better?
+#### Preamble ####
+# Purpose: Cleans the raw elections data and filters high-quality polls data
+# Author: Yunkyung Ko
+# Date: 19 October 2024
+# Contact: yunkyung.ko@mail.utoronto.ca
+# License: MIT
+# Pre-requisites: Need to have downloaded the data.
+# Any other information needed? None
+
+#### Workspace setup ####
+library(tidyverse)
+library(arrow)
+
+#### Clean data ####
+# Read in the data and clean variable names
+raw_elections_data <- read_csv("data/01-raw_data/raw_elections_data.csv")
+elections_data <-
+  raw_elections_data |>
+  janitor::clean_names() |>
+  select(pollster, numeric_grade, pollscore, state, end_date, candidate_name, sample_size, pct) |>
+  tidyr::drop_na() |>
+  mutate(
+    state = if_else(is.na(state), "National", state) # Handle missing states as "National"
+  ) |>
+  group_by(state) |>
+  mutate(
+    state_count = n() # Count the number of polls per state
+  ) |>
+  ungroup() |>
+  mutate(
+    state = if_else(state_count < 60, "Other", state) # Assign "Other" for states with fewer than 60 polls
+  ) |>
+  select(-state_count) # Remove the 'state_count' column
+
+# Remove outliers (pct values greater than 100 or less than 0)
+elections_data <- elections_data |>
+  filter(pct >= 0 & pct <= 100)
+
+# Filter data to Harris estimates based on high-quality polls after she declared
+harris_data <-
+  elections_data |>
+  filter(
+    candidate_name == "Kamala Harris",
+    numeric_grade >= 2.7 # Need to investigate this choice - come back and fix.
+  ) |>
+  mutate(
+    state = if_else(is.na(state), "National", state),
+    end_date = mdy(end_date)
+  ) |>
+  filter(end_date >= as.Date("2024-07-21")) |> # When Harris declared
+  mutate(
+    num_harris = round((pct / 100) * sample_size, 0) # Need number not percent for some models
+  ) |>
+  group_by(pollster) |>
+  filter(n() > 20) |> # Filter for pollsters with more than 20 polls
+  ungroup()  |>
+  filter(pct >= 0 & pct <= 100)
+
+
+#### Save data ####
+write_csv(elections_data, "data/02-analysis_data/elections_data.csv")
+write_csv(harris_data, "data/02-analysis_data/harris_elections_data.csv")
+
+write_parquet(elections_data, "data/02-analysis_data/elections_data.parquet")
+write_parquet(harris_data, "data/02-analysis_data/harris_elections_data.parquet")分析一下回答用中文
+
+
+chat gpt:
+Compared to the second code snippet, the first code snippet has a clearer structure and more thorough data cleaning steps, suitable for high-quality data processing. Here’s a comparison of the two code snippets:
+
+Summary of Advantages
+
+First Code Snippet (Kamala Harris):
+1. Clear Structure: Contains well-defined comments to explain the purpose of each step (e.g., removing outliers, handling missing values).
+2. Comprehensive Data Cleaning: Includes removing outliers, handling missing values, grouping and categorizing state data (e.g., grouping states with fewer than 60 polls as “Other”) to ensure data quality.
+3. Filtering by Polling Organizations: Groups by polling organization and retains those with more than 20 polls, ensuring representativeness.
+4. Detailed Data Export: Saves in multiple formats (CSV and Parquet), making it adaptable for further analysis.
+
+Second Code Snippet (Donald Trump):
+1. Simplicity and Efficiency: Achieves basic data cleaning and filtering, suitable for quick data exploration and preliminary analysis.
+2. Plotting Section: Differentiates by pollster and pollscore and tries different visualizations (e.g., faceting by pollster), helping quickly identify patterns or anomalies in the data.
+
+Summary of Disadvantages
+
+Disadvantages of the First Code Snippet:
+The more detailed cleaning steps may increase code complexity, making it suitable for more rigorous data cleaning requirements but less for quick data exploration.
+
+Disadvantages of the Second Code Snippet:
+Lacks comprehensive data cleaning steps, performing only basic filtering, which may allow incomplete or anomalous data to affect results.
+Doesn’t apply in-depth filtering for the quality and quantity of data from different polling organizations, potentially introducing bias.
+Contains limited comments, making it harder to understand the data processing logic, which might hinder collaboration or further analysis.
+
+Overall Comparison
+
+The first code snippet has more thorough cleaning and filtering steps, making it suitable for projects requiring strict data accuracy and handling large data volumes. The second snippet is more appropriate for quick analysis, particularly in the exploratory stage where generating results efficiently is important. If the project is time-sensitive or visualization-focused, the second snippet is preferable; however, if data accuracy and reliability are prioritized, the first snippet is clearly superior.
+
+User:
+Modify the second one to include the strengths of the first one. I need it to filter for Trump with numeric_grade above grade_threshold <- 2.7 and select important variables.
+
+chat gpt:
+Sure, I’ll incorporate the strengths of the first snippet into the second snippet, setting grade_threshold to 2.7 to ensure high-quality data selection. I’ll also add comments to clarify each data cleaning step. Here’s the modified code:
+
+[Code Snippet]
+
+Explanation of Modifications
+1. Data Cleaning and Selection: Added variable selection to retain fields relevant to analysis, such as pollster, numeric_grade, pollscore, state, and others.
+2. Handling Missing Values and State Classification: Filled missing state data as "National" and grouped states with fewer than 60 polls into "Other."
+3. Date and Filter Conditions: Converted end_date format and filtered records to include only those after July 21, 2024.
+4. Outlier Removal: Filtered out rows where pct is not between 0 and 100.
+5. High-Quality Poll Selection: Filtered for numeric_grade above 2.7 and kept pollsters with over 20 polls.
+6. Data Export: Finally saved the cleaned data as CSV and Parquet files for further analysis.
+
+This integrated code ensures higher data quality and has a clear structure with well-explained comments, making it beneficial for collaboration and further analysis.
+
+user:Error in write_csv(x = just_trump_high_quality, sink = "data/02-analysis_data/cleaned_US_voting.csv") : 
+  unused argument (sink = "data/02-analysis_data/cleaned_US_voting.csv")
+
+chat gpt:The error you're encountering is because `write_csv` from the `readr` package does not have a `sink` argument. Instead, `write_csv` expects the file path to be passed directly as the second argument. Here's how you should modify your code:
+
+```r
+write_csv(just_trump_high_quality, "data/02-analysis_data/cleaned_US_voting.csv")
+```
+
+This should resolve the issue. Let me know if you run into any more errors!
+
+user:help us to choose model
+
+chat gpt:When choosing between different statistical models for polling data analysis, it's crucial to consider several factors to ensure you select the model that best fits your needs. Here’s a structured approach to help you decide:
+
+### 1. Understand the Data
+- **Complexity of Data**: Assess the number and type of variables involved. For simpler datasets, simpler models might suffice, whereas complex datasets with multiple variables may require more sophisticated models to capture interactions and hierarchies.
+- **Quality and Quantity**: Consider the volume of data and its quality (e.g., missing values, bias). A larger dataset might support more complex models without overfitting.
+
+### 2. Define the Objective
+- **Forecasting vs. Explanation**: Determine whether the model’s primary purpose is to forecast future outcomes or to explain the relationships among variables. Forecasting might prioritize predictive accuracy, while explanatory models might focus on the interpretability of variables.
+
+### 3. Model Comparison Criteria
+- **Predictive Performance**: Use metrics such as RMSE (Root Mean Square Error), MAE (Mean Absolute Error), or cross-validated performance to assess predictive accuracy.
+- **Interpretability**: Consider how easy it is to explain the model to stakeholders. Linear models are generally more interpretable than more complex models like neural networks.
+- **Computational Efficiency**: Evaluate the computational cost of fitting the model, especially if dealing with large datasets or real-time data.
+- **Robustness and Sensitivity**: Check how sensitive the model is to outliers in the data or to variations in model assumptions.
+
+### 4. Model Validation
+- **Out-of-Sample Testing**: Validate the model using data that were not used during the model building process, such as through hold-out validation or cross-validation.
+- **Residual Analysis**: Analyze the residuals of the model for any patterns that suggest poor fit, such as heteroscedasticity or autocorrelation.
+
+### 5. Consider Theoretical Grounds
+- **Underlying Assumptions**: Each model comes with assumptions (e.g., linearity, normality, independence). Ensure the data meet these assumptions, or that the model can robustly handle violations of these assumptions.
+- **External Knowledge**: Incorporate knowledge from external sources or past research that may dictate the use of certain models or variables.
+
+### 6. Iterate and Improve
+- **Model Enhancements**: Based on the initial findings, refine the model by adding interactions, polynomial terms, or considering different transformations of the data.
+- **Alternative Models**: Always consider and evaluate a few models to understand the trade-offs. For instance, you might compare a simple linear model, a hierarchical model, and a machine learning model to see which offers the best balance of accuracy and interpretability.
+
+### 7. Software and Tools
+- **Implementation**: Use software that allows flexibility and robustness in modeling. R (with packages like `lm`, `glm`, `lme4`, and `rstanarm`) and Python (with libraries like `statsmodels` and `scikit-learn`) are both strong candidates.
+
+For your polling data, you've considered several models: simple linear models, extended models including pollsters, hierarchical models for pollster-specific adjustments, and interaction models for state-level trends. Each of these has its strengths, and the choice depends heavily on the above criteria tailored to your specific project needs and data characteristics. For example, if pollster effects are significant and vary randomly, a hierarchical model might be the best choice. If state-level trends over time are critical, an interaction model would be beneficial. If interpretability to non-technical stakeholders is crucial, simpler models might be preferable despite potentially sacrificing some predictive power.
+
+
+user:Give me the r-code of the model, commented in English, drawn as nicely as possible, and easy to understand.
+I'm modeling, and my ultimate goal is to use the model to predict the U.S. election.
+
+chat gpt:
+
+```r
+#### Preamble ####
+# Purpose: Build models to predict U.S. election outcomes based on Trump support data
+# Author: [Your Name]
+# Date: [Today's Date]
+# Contact: [Your Contact Information]
+# License: MIT
+# Pre-requisites: Cleaned data with variables like pct, pollster, end_date, sample_size
+# Note: Update paths if necessary
+
+#### Workspace setup ####
+library(tidyverse)
+library(rstanarm)
+
+#### Read data ####
+# Load the cleaned data for modeling
+just_trump_high_quality <- read_parquet("data/02-analysis_data/trump_analysis_data.parquet")
+
+#### Starter models ####
+
+# Model 1: Simple linear model of pct as a function of end_date
+model_date <- lm(pct ~ end_date, data = just_trump_high_quality)
+
+# Model 2: Linear model of pct as a function of end_date and pollster
+model_date_pollster <- lm(pct ~ end_date + pollster, data = just_trump_high_quality)
+
+# Augment data with model predictions for visualization
+just_trump_high_quality <- just_trump_high_quality |>
+  mutate(
+    fitted_date = predict(model_date),                     # Predictions from model 1
+    fitted_date_pollster = predict(model_date_pollster)    # Predictions from model 2
+  )
+
+#### Visualization ####
+
+# Plot 1: Simple model - Trump Support over Time
+ggplot(just_trump_high_quality, aes(x = end_date)) +
+  geom_point(aes(y = pct), color = "black", alpha = 0.7) +  # Actual data points
+  geom_line(aes(y = fitted_date), color = "blue", linetype = "dotted", size = 1) +  # Model fit
+  theme_classic() +
+  labs(y = "Trump Support (%)", x = "Date", 
+       title = "Model 1: Trump Support Over Time",
+       subtitle = "Linear Model: pct ~ end_date") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+
+# Plot 2: Model with Pollster - Trump Support Over Time by Pollster
+ggplot(just_trump_high_quality, aes(x = end_date)) +
+  geom_point(aes(y = pct), color = "darkgrey", alpha = 0.7) +  # Actual data points
+  geom_line(aes(y = fitted_date_pollster), color = "blue", linetype = "dashed", size = 1) +  # Model fit
+  facet_wrap(vars(pollster), ncol = 3) +  # Facet by pollster
+  theme_classic() +
+  labs(y = "Trump Support (%)", x = "Date", 
+       title = "Model 2: Trump Support Over Time by Pollster",
+       subtitle = "Linear Model: pct ~ end_date + pollster") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+
+# Plot 3: Sample Size and Support - Relationship between Sample Size and Support Percentage
+ggplot(just_trump_high_quality, aes(x = sample_size, y = pct)) +
+  geom_point(color = "purple", alpha = 0.6) +
+  geom_smooth(method = "lm", color = "blue", linetype = "solid", se = FALSE) +  # Linear fit
+  theme_minimal() +
+  labs(y = "Trump Support (%)", x = "Sample Size", 
+       title = "Sample Size vs. Trump Support",
+       subtitle = "Trend of Support Percentage with Increasing Sample Size") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+
+# Plot 4: Trump Support by State - Distribution of Trump Support Across States
+ggplot(just_trump_high_quality, aes(x = state, y = pct, fill = state)) +
+  geom_boxplot(alpha = 0.7) +
+  theme_light() +
+  labs(y = "Trump Support (%)", x = "State", 
+       title = "Distribution of Trump Support Across States",
+       subtitle = "Boxplot of Support Percentage for Each State") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
+
+# Plot 5: Pollscore Variation Over Time - Observe Trends in Poll Scores
+ggplot(just_trump_high_quality, aes(x = end_date, y = pollscore, color = pollscore)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "loess", se = FALSE) +
+  scale_color_viridis_c() +
+  theme_classic() +
+  labs(y = "Poll Score", x = "Date", 
+       title = "Poll Score Trends Over Time",
+       subtitle = "Color intensity represents poll score") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+
+#### Save models ####
+# Save model objects for future use in predictions
+saveRDS(model_date, file = "models/model_date.rds")
+saveRDS(model_date_pollster, file = "models/model_date_pollster.rds")
+
+```
+
+### Explanation of Key Changes
+1. **Enhanced Labels and Titles**: Each plot is labeled to clearly indicate what is being shown.
+2. **Color and Transparency Adjustments**: Increased readability by adding alpha transparency to data points, especially in dense areas.
+3. **Facet Wraps and Loess Smoothing**: `facet_wrap` allows visualizing individual pollsters, and `loess` provides a smoothed trend for poll score visualization.
+4. **Color Mapping**: The `scale_color_viridis_c()` function is used for color intensity in poll scores, enhancing readability.
+
+user:Can you explain the significance of more mapping variables?
+
+chat gpt:Certainly, here’s an explanation of each variable in the context of the visualizations, focusing on their meaning and significance:
+
+1. **`end_date`**:
+   - **Meaning**: Represents the date when each poll was conducted.
+   - **Significance**: Tracking support percentages (`pct`) over time helps us observe shifts in public opinion as the election date approaches. Modeling `pct` as a function of `end_date` can reveal whether support for Trump increases or decreases with time and capture long-term trends.
+
+2. **`pct` (Trump Support Percentage)**:
+   - **Meaning**: The percentage of respondents in each poll who supported Trump.
+   - **Significance**: This is the target variable we aim to model and eventually predict. Variations in `pct` over time, across states, and by pollster indicate shifts in Trump’s support. Higher `pct` values indicate stronger support, which can be critical for understanding the dynamics of the election landscape.
+
+3. **`pollster`**:
+   - **Meaning**: The organization or individual that conducted each poll.
+   - **Significance**: Different pollsters may produce slightly different results due to methodology, sampling, and potential biases. By including `pollster` as a variable, we capture these variations and improve model accuracy by accounting for consistent biases or tendencies in certain pollsters' data.
+
+4. **`sample_size`**:
+   - **Meaning**: The number of respondents in each poll.
+   - **Significance**: Larger sample sizes generally produce more reliable estimates with lower variability. Visualizing `sample_size` alongside `pct` can indicate whether support percentages are more stable in larger samples, highlighting the robustness of certain polls over others.
+
+5. **`numeric_grade` (Poll Quality Score)**:
+   - **Meaning**: A numerical rating indicating the quality of each poll, where a higher grade typically represents higher quality or reliability.
+   - **Significance**: Including `numeric_grade` allows us to filter for high-quality polls and better understand the impact of poll quality on the results. Higher-quality polls may be less prone to biases, offering a clearer picture of actual support trends.
+
+6. **`state`**:
+   - **Meaning**: The state in which the poll was conducted, or "National" if it was a national poll.
+   - **Significance**: Visualizing support by `state` helps identify geographic patterns in Trump’s support. Since U.S. elections are decided by the electoral college, state-level support variations are crucial for understanding which states are likely to lean toward Trump or his opponent.
+
+7. **`pollscore`**:
+   - **Meaning**: A rating or score provided by the polling organization, often based on transparency, methodology, and sample quality.
+   - **Significance**: Different `pollscore` levels allow us to distinguish between high- and low-quality polls. By visualizing support over time with pollscore as a factor, we can assess whether high-quality polls align with overall trends or if low-quality polls introduce outliers.
+
+### Why These Variables Matter for Predicting the Election Outcome
+Each of these variables contributes uniquely to understanding and predicting election trends. The date (`end_date`) and quality scores (`numeric_grade` and `pollscore`) help filter reliable data and analyze support dynamics over time, while variables like `state` and `pollster` capture geographic and institutional variations that can shift the model's prediction. Combined, they enable a multifaceted view of Trump’s support, which is vital for forecasting overall election outcomes effectively.
+
+user:Error in filter():
+In argument: numeric_grade >= grade_threshold.
+Caused by error:
+! object 'grade_threshold' not found why
+
+chat gpt:The error indicates that `grade_threshold` is not defined in your environment. To resolve this, ensure that `grade_threshold` is either defined in your script or passed as an argument to the function where `filter()` is used.
+
+Here's how you might define or pass it:
+
+1. **Define it directly in your code** before using `filter()`. For example:
+
+   ```r
+   grade_threshold <- 3.5  # Set a specific threshold
+   filtered_data <- data %>%
+     filter(numeric_grade >= grade_threshold)
+   ```
+
+2. **Pass it as a function argument** if you’re using this code inside a function:
+
+   ```r
+   my_filter_function <- function(data, grade_threshold) {
+     data %>%
+       filter(numeric_grade >= grade_threshold)
+   }
+   ```
+
+3. **Check for the variable in the global environment** if `grade_threshold` is defined elsewhere in your code or environment.
+
+Once `grade_threshold` is defined, `filter()` should work without issues. Let me know if that clears things up!
+
+
+user: Give me model_data with r, draw a few more models on top of that Combine them with different predictors.
+
+chat gpt:I'll add models using various relevant predictors to examine different relationships in the data. Here’s the updated R code that sets up several models using a range of predictors:
+
+```r
+#### Preamble ####
+# Purpose: Additional models for pct
+# Author: Rohan Alexander [...UPDATE THIS...]
+# Date: 11 February 2023 [...UPDATE THIS...]
+# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# License: MIT
+# Pre-requisites: [...UPDATE THIS...]
+
+#### Workspace setup ####
+library(tidyverse)
+library(rstanarm)
+library(arrow)
+
+#### Read data ####
+just_trump_high_quality <- read_parquet("data/02-analysis_data/analysis_data.parquet")
+
+#### Starter models ####
+# Model 1: pct as a function of end_date
+model_date <- lm(pct ~ end_date, data = just_trump_high_quality)
+
+# Model 2: pct as a function of end_date and pollster
+model_date_pollster <- lm(pct ~ end_date + pollster, data = just_trump_high_quality)
+
+# Model 3: pct as a function of end_date, pollster, and numeric_grade
+model_date_pollster_grade <- lm(pct ~ end_date + pollster + numeric_grade, data = just_trump_high_quality)
+
+# Model 4: pct as a function of end_date, pollster, numeric_grade, and sponsors
+model_date_pollster_grade_sponsors <- lm(pct ~ end_date + pollster + numeric_grade + sponsors, data = just_trump_high_quality)
+
+# Augment data with model predictions
+just_trump_high_quality <- just_trump_high_quality |>
+  mutate(
+    fitted_date = predict(model_date),
+    fitted_date_pollster = predict(model_date_pollster),
+    fitted_date_pollster_grade = predict(model_date_pollster_grade),
+    fitted_date_pollster_grade_sponsors = predict(model_date_pollster_grade_sponsors)
+  )
+
+# Plot model predictions
+# Model 1
+ggplot(just_trump_high_quality, aes(x = end_date)) +
+  geom_point(aes(y = pct), color = "black") +
+  geom_line(aes(y = fitted_date), color = "blue", linetype = "dotted") +
+  theme_classic() +
+  labs(y = "Trump percent", x = "Date", title = "Linear Model: pct ~ end_date")
+
+# Model 2
+ggplot(just_trump_high_quality, aes(x = end_date)) +
+  geom_point(aes(y = pct), color = "black") +
+  geom_line(aes(y = fitted_date_pollster), color = "blue", linetype = "dotted") +
+  facet_wrap(vars(pollster)) +
+  theme_classic() +
+  labs(y = "Trump percent", x = "Date", title = "Linear Model: pct ~ end_date + pollster")
+
+# Model 3
+ggplot(just_trump_high_quality, aes(x = end_date)) +
+  geom_point(aes(y = pct), color = "black") +
+  geom_line(aes(y = fitted_date_pollster_grade), color = "blue", linetype = "dotted") +
+  facet_wrap(vars(pollster)) +
+  theme_classic() +
+  labs(y = "Trump percent", x = "Date", title = "Linear Model: pct ~ end_date + pollster + numeric_grade")
+
+# Model 4
+ggplot(just_trump_high_quality, aes(x = end_date)) +
+  geom_point(aes(y = pct), color = "black") +
+  geom_line(aes(y = fitted_date_pollster_grade_sponsors), color = "blue", linetype = "dotted") +
+  facet_wrap(vars(pollster)) +
+  theme_classic() +
+  labs(y = "Trump percent", x = "Date", title = "Linear Model: pct ~ end_date + pollster + numeric_grade + sponsors")
+
+#### Save models ####
+saveRDS(model_date, file = "models/model_date.rds")
+saveRDS(model_date_pollster, file = "models/model_date_pollster.rds")
+saveRDS(model_date_pollster_grade, file = "models/model_date_pollster_grade.rds")
+saveRDS(model_date_pollster_grade_sponsors, file = "models/model_date_pollster_grade_sponsors.rds")
+```
+
+This setup adds progressively more predictors to each model, allowing you to analyze how each factor contributes to predicting `pct`. Let me know if you’d like further customization!
+
+user : make it clear and detailedThe outcome variable of interest for this research is the percentage representing the level of public support for Donald Trump. The distribution is shown in @fig-pct, where the x-axis represents the support percentage, ranging from approximately 20% to 70%, and the y-axis displays the count of poll surveys reporting each support level. The red dashed line at the 50% mark acts as a benchmark, indicating the threshold needed for majority support.
+The distribution shows that most observations cluster around a support level of approximately 48%, indicating significant backing from the electorate. A smaller portion of polls report support above 55%, suggesting that while Trump has a core base, many voters remain either undecided or opposed. This visualization highlights both the concentration and variability of support within the surveyed population.
+
+chat gpt:
+Here’s a refined and detailed explanation of the outcome variable and distribution:
+
+---
+
+The primary outcome variable in this study is the percentage of public support for Donald Trump, representing the level of backing he receives across various polls. In @fig-pct, the x-axis indicates the range of support percentages, which spans from roughly 20% to 70%, while the y-axis displays the frequency of polls reporting each specific support level.
+
+A red dashed line at the 50% mark serves as a reference point, signifying the threshold for majority support. This visual marker helps distinguish between levels below and above the majority, providing insight into the percentage needed to secure substantial electoral backing.
+
+The distribution reveals a concentration of observations around a support level of 48%, suggesting solid yet slightly below-majority support among the electorate. Fewer polls indicate support levels above 55%, reflecting a more limited number of instances where Trump’s backing surpasses a simple majority. This pattern suggests that while Trump has consistent core support, a significant portion of the voting population is either undecided or leaning toward other candidates. The distribution visualization thus captures both the central tendency and the spread of Trump’s support, illustrating the extent of his base and the variability in his appeal across different surveys.
+
+user:Compare the two clean_data Chinese answer me Filtering on the basis of the first, I need higher than 2.7
+#### Preamble ####
+# Purpose: Cleans the raw plane data recorded by two observers and filters high-quality Trump polls data
+# Author: Xuanang Ren
+# Date: 6 April 2023
+# Contact: rohan.alexander@utoronto.ca
+# License: MIT
+# Pre-requisites: Need to have downloaded the data.
+# Any other information needed? None
+
+#### Workspace setup ####
+library(tidyverse)
+library(arrow)
+library(janitor)
+
+#### Clean data ####
+# Read in the data and clean variable names
+raw_data <- read_csv("data/01-raw_data/raw_data.csv") |>
+  clean_names()
+
+# Select relevant columns and handle missing values
+elections_data <-
+  raw_data |>
+  select(pollster, numeric_grade, pollscore, state, end_date, candidate_name, sample_size, pct) |>
+  drop_na() |>
+  mutate(
+    state = if_else(is.na(state), "National", state) # Handle missing states as "National"
+  ) |>
+  group_by(state) |>
+  mutate(
+    state_count = n() # Count the number of polls per state
+  ) |>
+  ungroup() |>
+  mutate(
+    state = if_else(state_count < 60, "Other", state) # Assign "Other" for states with fewer than 60 polls
+  ) |>
+  select(-state_count) # Remove the 'state_count' column
+
+# Remove outliers (pct values greater than 100 or less than 0)
+elections_data <- elections_data |>
+  filter(pct >= 0 & pct <= 100)
+
+# Filter data to Trump estimates based on high-quality polls after he declared
+trump_data <-
+  elections_data |>
+  filter(
+    candidate_name == "Donald Trump",
+    numeric_grade >= 2.7
+  ) |>
+  mutate(
+    state = if_else(is.na(state), "National", state),
+    end_date = mdy(end_date)
+  ) |>
+  filter(end_date >= as.Date("2024-07-21")) |> # When Trump declared
+  mutate(
+    num_trump = round((pct / 100) * sample_size, 0) # Need number not percent for some models
+  ) |>
+  group_by(pollster) |>
+  filter(n() > 20) |> # Filter for pollsters with more than 20 polls
+  ungroup()
+
+#### Save data ####
+write_csv(elections_data, "data/02-analysis_data/elections_data.csv")
+write_csv(trump_data, "data/02-analysis_data/trump_elections_data.csv")
+
+write_parquet(elections_data, "data/02-analysis_data/elections_data.parquet")
+write_parquet(trump_data, "data/02-analysis_data/trump_elections_data.parquet")
+
+#### Preamble ####
+# Purpose: Cleans the raw plane data recorded by two observers..... [...UPDATE THIS...]
+# Author: Xuanang Ren [...UPDATE THIS...]
+# Date: 6 April 2023 [...UPDATE THIS...]
+# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# License: MIT
+# Pre-requisites: [...UPDATE THIS...]
+# Any other information needed? [...UPDATE THIS...]
+
+#### Workspace setup ####
+library(tidyverse)
+library(arrow)
+library(janitor)
+
+#### Clean data ####
+#### Prepare dataset ####
+# Read in the data and clean variable names
+data <- read_csv("data/01-raw_data/raw_data.csv") |>
+  clean_names()
+
+# Filter data to Trump estimates based on high-quality polls after she declared
+grade_threshold <- 2.7 # Set threshold for poll quality
+just_trump_high_quality <- data |>
+  filter(
+    candidate_name == "Donald Trump",
+    numeric_grade >= grade_threshold
+  ) |># Need to investigate this choice - come back and fix. 
+  # Also need to look at whether the pollster has multiple polls or just one or two - filter out later
+  mutate(
+    state = if_else(is.na(state), "National", state), # Hacky fix for national polls - come back and check
+    end_date = mdy(end_date)
+  ) |>
+  filter(end_date >= as.Date("2024-07-21")) |> # When Trump declared
+  mutate(
+    num_trump = round((pct / 100) * sample_size, 0) # Need number not percent for some models
+  )
+
+
+#### Plot data ####
+base_plot <- ggplot(just_trump_high_quality, aes(x = end_date, y = pct)) +
+  theme_classic() +
+  labs(y = "Trump percent", x = "Date")
+
+# Plots poll estimates and overall smoothing
+base_plot +
+  geom_point() +
+  geom_smooth()
+
+# Color by pollster
+# This gets messy - need to add a filter - see line 21
+base_plot +
+  geom_point(aes(color = pollster)) +
+  geom_smooth() +
+  theme(legend.position = "bottom")
+
+# Facet by pollster
+# Make the line 21 issue obvious
+# Also - is there duplication???? Need to go back and check
+base_plot +
+  geom_point() +
+  geom_smooth() +
+  facet_wrap(vars(pollster), ncol = 3)
+
+# Color by pollscore
+base_plot +
+  geom_point(aes(color = factor(pollscore))) +
+  geom_smooth() +
+  theme(legend.position = "bottom")
+
+
+#### Save data ####
+write_csv(just_trump_high_quality, "data/02-analysis_data/cleaned_US_voting.csv")
+
+write_parquet(x = just_trump_high_quality,
+              sink = "data/02-analysis_data/analysis_data.parquet")
+
+chat gpt:Here’s a comparison of the two `clean_data` scripts, focusing on filtering for data with a `numeric_grade` above 2.7:
+
+1. **Data Reading and Variable Cleaning**: Both scripts use the `read_csv` function to load data and `clean_names` to tidy up column names.
+
+2. **Filtering for Trump Data**: Both scripts filter for Donald Trump’s poll data based on `candidate_name` and `numeric_grade` (threshold of 2.7).
+
+3. **State and Date Handling**:
+   - In the first `clean_data` script, missing `state` values are marked as “National,” and states with fewer than 60 polls are grouped as “Other.”
+   - In the second script, missing states are simply marked as “National,” without further categorization based on poll count.
+
+4. **Date Filtering**: Both scripts filter for polls conducted after July 21, 2024.
+
+5. **Sample Size Transformation**: Both scripts calculate the actual number of Trump supporters (`num_trump`) based on `pct` and `sample_size`, required by some models.
+
+6. **High-Frequency Pollster Filtering**: The first `clean_data` script further filters to include only pollsters with more than 20 polls, while the second script does not perform this step.
+
+7. **Data Saving**:
+   - The first script saves both `elections_data` and `trump_data` to CSV and Parquet files.
+   - The second script saves only `just_trump_high_quality` as a single CSV and Parquet file.
+
+8. **Data Visualization**: The second script includes data visualization steps using ggplot2, creating scatter plots and smoothed lines based on date and support percentage, with options to color by pollster and pollscore.
+
+Summary: The first script is more comprehensive, handling state categorization and filtering based on high-frequency pollsters, making it better for large-sample analysis. If only high-quality data with a `numeric_grade` above 2.7 is needed without filtering by pollster frequency, the second script is simpler and more straightforward.
+
+user：Give me model_data with r, draw a few more models on top of that
+Combine them with different predictors.
+给我model_data 用r，在这个基础上多画几个model
+用不同的predictors结合
+#### Preamble ####
+# Purpose: Models... [...UPDATE THIS...]
+# Author: Rohan Alexander [...UPDATE THIS...]
+# Date: 11 February 2023 [...UPDATE THIS...]
+# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# License: MIT
+# Pre-requisites: [...UPDATE THIS...]
+# Any other information needed? [...UPDATE THIS...]
+
+
+#### Preamble ####
+# Purpose: Models... [...UPDATE THIS...]
+# Author: Rohan Alexander [...UPDATE THIS...]
+# Date: 11 February 2023 [...UPDATE THIS...]
+# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# License: MIT
+# Pre-requisites: [...UPDATE THIS...]
+# Any other information needed? [...UPDATE THIS...]
+
+
+#### Workspace setup ####
+library(tidyverse)
+library(rstanarm)
+
+#### Read data ####
+just_trump_high_quality <- read_parquet("data/02-analysis_data/analysis_data.parquet")
+
+#### Starter models ####
+# Model 1: pct as a function of end_date
+model_date <- lm(pct ~ end_date, data = just_trump_high_quality)
+
+# Model 2: pct as a function of end_date and pollster
+model_date_pollster <- lm(pct ~ end_date + pollster, data = just_trump_high_quality)
+
+# Augment data with model predictions
+just_trump_high_quality <- just_trump_high_quality |>
+  mutate(
+    fitted_date = predict(model_date),
+    fitted_date_pollster = predict(model_date_pollster)
+  )
+
+# Plot model predictions
+# Model 1
+ggplot(just_trump_high_quality, aes(x = end_date)) +
+  geom_point(aes(y = pct), color = "black") +
+  geom_line(aes(y = fitted_date), color = "blue", linetype = "dotted") +
+  theme_classic() +
+  labs(y = "Trump percent", x = "Date", title = "Linear Model: pct ~ end_date")
+
+# Model 2
+ggplot(just_trump_high_quality, aes(x = end_date)) +
+  geom_point(aes(y = pct), color = "black") +
+  geom_line(aes(y = fitted_date_pollster), color = "blue", linetype = "dotted") +
+  facet_wrap(vars(pollster)) +
+  theme_classic() +
+  labs(y = "Trump percent", x = "Date", title = "Linear Model: pct ~ end_date + pollster")
+
+#### Save model ####
+saveRDS(
+  model_date,
+  file = "models/model_date.rds"
+)
+
+saveRDS(
+  model_date_pollster,
+  file = "models/model_date_pollster.rds"
+)
+
+chat gpt：The data contains several useful columns, including:
+
+- `pollster` and `pollster_rating_id`: The pollster and their rating
+- `numeric_grade`: The numeric quality of the pollster
+- `end_date`: Likely needed for time-based models (not seen in the preview but may be inferred if available)
+- `pct`: The percent support (e.g., for Trump)
+- `candidate_name`: Can be filtered to focus on "Donald Trump"
+  
+I'll set up additional models using various predictor combinations, like `numeric_grade`, `pollster`, and `sponsors` where available, to examine their relationships with `pct`. 
+
+Let's proceed with creating these models in R. Shall we use only the `Donald Trump` data subset and focus on models predicting `pct`?
+
+user ：Filter to only Donald Trump data
+
+chat gpt：The data is now filtered to include only rows related to Donald Trump. I'll proceed with constructing additional models in R, using various predictors (such as `numeric_grade`, `pollster`, and `sponsors` where available) to explore their impact on `pct`. I’ll outline the code for these models below.
+
+Would you like to specify any additional predictors, or should I use those listed?
+
+user：depends on you
+
+chat gpt：I'll add models using various relevant predictors to examine different relationships in the data. Here’s the updated R code that sets up several models using a range of predictors:
+
+```r
+#### Preamble ####
+# Purpose: Additional models for pct
+# Author: Rohan Alexander [...UPDATE THIS...]
+# Date: 11 February 2023 [...UPDATE THIS...]
+# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# License: MIT
+# Pre-requisites: [...UPDATE THIS...]
+
+#### Workspace setup ####
+library(tidyverse)
+library(rstanarm)
+library(arrow)
+
+#### Read data ####
+just_trump_high_quality <- read_parquet("data/02-analysis_data/analysis_data.parquet")
+
+#### Starter models ####
+# Model 1: pct as a function of end_date
+model_date <- lm(pct ~ end_date, data = just_trump_high_quality)
+
+# Model 2: pct as a function of end_date and pollster
+model_date_pollster <- lm(pct ~ end_date + pollster, data = just_trump_high_quality)
+
+# Model 3: pct as a function of end_date, pollster, and numeric_grade
+model_date_pollster_grade <- lm(pct ~ end_date + pollster + numeric_grade, data = just_trump_high_quality)
+
+# Model 4: pct as a function of end_date, pollster, numeric_grade, and sponsors
+model_date_pollster_grade_sponsors <- lm(pct ~ end_date + pollster + numeric_grade + sponsors, data = just_trump_high_quality)
+
+# Augment data with model predictions
+just_trump_high_quality <- just_trump_high_quality |>
+  mutate(
+    fitted_date = predict(model_date),
+    fitted_date_pollster = predict(model_date_pollster),
+    fitted_date_pollster_grade = predict(model_date_pollster_grade),
+    fitted_date_pollster_grade_sponsors = predict(model_date_pollster_grade_sponsors)
+  )
+
+# Plot model predictions
+# Model 1
+ggplot(just_trump_high_quality, aes(x = end_date)) +
+  geom_point(aes(y = pct), color = "black") +
+  geom_line(aes(y = fitted_date), color = "blue", linetype = "dotted") +
+  theme_classic() +
+  labs(y = "Trump percent", x = "Date", title = "Linear Model: pct ~ end_date")
+
+# Model 2
+ggplot(just_trump_high_quality, aes(x = end_date)) +
+  geom_point(aes(y = pct), color = "black") +
+  geom_line(aes(y = fitted_date_pollster), color = "blue", linetype = "dotted") +
+  facet_wrap(vars(pollster)) +
+  theme_classic() +
+  labs(y = "Trump percent", x = "Date", title = "Linear Model: pct ~ end_date + pollster")
+
+# Model 3
+ggplot(just_trump_high_quality, aes(x = end_date)) +
+  geom_point(aes(y = pct), color = "black") +
+  geom_line(aes(y = fitted_date_pollster_grade), color = "blue", linetype = "dotted") +
+  facet_wrap(vars(pollster)) +
+  theme_classic() +
+  labs(y = "Trump percent", x = "Date", title = "Linear Model: pct ~ end_date + pollster + numeric_grade")
+
+# Model 4
+ggplot(just_trump_high_quality, aes(x = end_date)) +
+  geom_point(aes(y = pct), color = "black") +
+  geom_line(aes(y = fitted_date_pollster_grade_sponsors), color = "blue", linetype = "dotted") +
+  facet_wrap(vars(pollster)) +
+  theme_classic() +
+  labs(y = "Trump percent", x = "Date", title = "Linear Model: pct ~ end_date + pollster + numeric_grade + sponsors")
+
+#### Save models ####
+saveRDS(model_date, file = "models/model_date.rds")
+saveRDS(model_date_pollster, file = "models/model_date_pollster.rds")
+saveRDS(model_date_pollster_grade, file = "models/model_date_pollster_grade.rds")
+saveRDS(model_date_pollster_grade_sponsors, file = "models/model_date_pollster_grade_sponsors.rds")
+```
+
+This setup adds progressively more predictors to each model, allowing you to analyze how each factor contributes to predicting `pct`. Let me know if you’d like further customization!
+
+user： help me to summarize all the variable and its meanings and importance
+#| label: fig-p c t
+#| fig-cap: Percentage distribution of support for Donald Trump across various poll responses. The red dashed line at the 50% mark serves as a reference, indicating the threshold for majority support.
+#| echo: false
+
+ggplot(analysis_data, aes(x = pct)) +
+  geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
+  geom_vline(xintercept = 50, linetype = "dashed", color = "red") +
+  labs(title = "Distribution of Support for Donald Trump", x = "Support (%)", y = "Count") +
+  theme_minimal()
+
+#| label: fig-SampleSize
+#| fig-cap: Distribution of Sample Sizes
+#| echo: false
+#| warning: false
+#| message: false
+
+ggplot(analysis_data, aes(x = sample_size)) +
+  geom_histogram(binwidth = 100, fill = "green", color = "black", alpha = 0.7) +
+  labs(title = "Distribution of Sample Sizes", x = "Sample Size", y = "Count") +
+  theme_minimal()
+
+#| label: fig-Trump-Support-Trend
+#| fig-cap: Distribution of Trends in Trump Support Across Polls
+#| echo: false
+#| warning: false
+#| message: false
+
+ggplot(analysis_data, aes(x = end_date, y = pct, color = pollster)) +
+  geom_line() +
+  labs(title = "Trend of Support for Donald Trump by Pollster", x = "Date", y = "Support (%)") +
+  theme_minimal()
+
+#| label: fig-Correlation
+#| fig-cap: Distribution of Correlation Between Support and Pollster Grade Across Polls
+#| echo: false
+#| warning: false
+#| message: false
+
+ggplot(analysis_data, aes(x = pct, y = numeric_grade)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Relationship between Support Percentage and Pollster Grade", x = "Support (%)", y = "Pollster Grade") +
+  theme_minimal()
+
+#| label: fig-SampleSizeSupport
+#| fig-cap: Distribution of Sample Size and Support Percentage by Methodology
+#| echo: false
+#| warning: false
+#| message: false
+
+analysis_data |>
+  filter(pct > 1) |>
+  ggplot(aes(x = sample_size, y = pct, color = pollster)) +
+  geom_point(size = 1, alpha = 0.3) +
+  facet_wrap(vars(methodology)) +
+  labs(title = "Sample Size and Support Percentage by Methodology", x = "Sample Size", y = "Support (%)") +
+  theme_classic()
+
+chat gpt:Here is a formal description of each variable from your code along with its role in the analysis:
+
+1. **analysis_data**: The dataset containing all relevant poll information for analysis. It serves as the main data source, encompassing variables used to evaluate support trends, sample distributions, and correlations in polling data.
+
+2. **pct** (Percentage Support): Represents the percentage of support for Donald Trump across different polls. This variable is used to analyze the distribution, trend, and relationships in support levels, acting as a core metric for measuring popularity.
+
+3. **sample_size**: Indicates the number of participants in each poll, representing the scope of each survey. Larger sample sizes often provide more reliable estimates, so this variable is essential in assessing how sample size might impact the observed support percentage.
+
+4. **pollster**: Denotes the polling organization or institution that conducted each survey. This categorical variable allows for differentiation between organizations, helping to analyze if specific pollsters yield different results or trends in support levels.
+
+5. **end_date**: The date each poll was completed, serving as a temporal variable. It is used to examine support trends over time, allowing for an analysis of how support may change across different periods.
+
+6. **numeric_grade**: A numerical rating assigned to each pollster, potentially based on historical accuracy, methodology quality, or reliability. This variable helps assess whether higher-rated pollsters correlate with distinct support levels, providing insight into pollster credibility.
+
+7. **methodology**: Describes the type of methodology used for conducting the poll, such as online, phone, or in-person surveys. As a categorical predictor, methodology enables comparison of support levels across different polling methods to identify any biases or effects due to the method used.
+
+Each of these variables plays a specific role in helping to analyze and interpret the data, providing insights into the factors that may influence polling outcomes and the reliability of the findings. Let me know if you need further details!
+
