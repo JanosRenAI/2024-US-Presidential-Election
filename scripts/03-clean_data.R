@@ -1,73 +1,95 @@
 #### Preamble ####
-# Purpose: Cleans the raw plane data recorded by two observers..... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 6 April 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Cleans the raw presidential polling data obtained from FiveThirtyEight
+# Author: Xuanang Ren, Caichen Sun
+# Date: 1 November 2024
+# Contact: ang.ren@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites:
+  # - The `tidyverse`, `arrow`, `janitor`, `lubridate`  package must be installed and loaded
+
 
 #### Workspace setup ####
 library(tidyverse)
 library(arrow)
 library(janitor)
+library(lubridate) 
 
 #### Clean data ####
 #### Prepare dataset ####
+# Set threshold for high-quality polls
+grade_threshold <- 2.7
+
 # Read in the data and clean variable names
 data <- read_csv("data/01-raw_data/raw_data.csv") |>
   clean_names()
 
-# Filter data to Trump estimates based on high-quality polls after she declared
-grade_threshold <- 2.7 # Set threshold for poll quality
-just_trump_high_quality <- data |>
+# Filter data to include only Trump records with numeric_grade above threshold and after Trump declared
+trump_data <- data |>
   filter(
     candidate_name == "Donald Trump",
     numeric_grade >= grade_threshold
-  ) |># Need to investigate this choice - come back and fix. 
-  # Also need to look at whether the pollster has multiple polls or just one or two - filter out later
-  mutate(
-    state = if_else(is.na(state), "National", state), # Hacky fix for national polls - come back and check
-    end_date = mdy(end_date)
   ) |>
-  filter(end_date >= as.Date("2024-07-21")) |> # When Trump declared
+  select(pollster, numeric_grade, pollscore, state, end_date, sample_size, pct) |>
+  drop_na() |>
   mutate(
-    num_trump = round((pct / 100) * sample_size, 0) # Need number not percent for some models
-  )
+    state = if_else(is.na(state), "National", state) # Handle missing state values as "National"
+  ) |>
+  group_by(state) |>
+  mutate(
+    state_count = n() # Count the number of polls per state
+  ) |>
+  ungroup() |>
+  mutate(
+    state = if_else(state_count < 60, "Other", state) # Assign "Other" for states with fewer than 60 polls
+  ) |>
+  select(-state_count) # Remove the state_count column
 
+# Convert date format and filter records after Trump’s declaration date
+trump_data <- trump_data |>
+  mutate(end_date = mdy(end_date)) |>
+  filter(end_date >= as.Date("2024-07-21")) # Trump declared date
+
+# Remove outliers (pct values greater than 100 or less than 0)
+trump_data <- trump_data |>
+  filter(pct >= 0 & pct <= 100)
+
+# Calculate the number of Trump supporters and filter pollsters with more than 20 polls
+trump_data <- trump_data |>
+  mutate(
+    num_trump = round((pct / 100) * sample_size, 0) # Convert pct to actual supporter numbers
+  ) |>
+  group_by(pollster) |>
+  filter(n() > 20) |> # Keep pollsters with more than 20 polls
+  ungroup()
 
 #### Plot data ####
-base_plot <- ggplot(just_trump_high_quality, aes(x = end_date, y = pct)) +
+base_plot <- ggplot(trump_data, aes(x = end_date, y = pct)) +
   theme_classic() +
   labs(y = "Trump percent", x = "Date")
 
-# Plots poll estimates and overall smoothing
+# Plot poll estimates with smoothing
 base_plot +
   geom_point() +
   geom_smooth()
 
-# Color by pollster
-# This gets messy - need to add a filter - see line 21
+# Color by pollster to visualize variation among pollsters
 base_plot +
   geom_point(aes(color = pollster)) +
   geom_smooth() +
   theme(legend.position = "bottom")
 
-# Facet by pollster
-# Make the line 21 issue obvious
-# Also - is there duplication???? Need to go back and check
+# Facet by pollster to view individual trends
 base_plot +
   geom_point() +
   geom_smooth() +
   facet_wrap(vars(pollster), ncol = 3)
 
-# Color by pollscore
+# Color by pollscore to observe quality variation
 base_plot +
   geom_point(aes(color = factor(pollscore))) +
   geom_smooth() +
   theme(legend.position = "bottom")
 
-
 #### Save data ####
-write_parquet(x = just_trump_high_quality,
-              sink = "data/02-analysis_data/analysis_data.parquet")
+write_csv(trump_data, "data/02-analysis_data/cleaned_trump_voting.csv")
+write_parquet(trump_data, "data/02-analysis_data/trump_analysis_data.parquet")

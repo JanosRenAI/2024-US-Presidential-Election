@@ -1,0 +1,228 @@
+pollster,numeric_grade,pollscore,state,end_date,sample_size,pct,num_trump
+AtlasIntel,2.7,-0.8,Arizona,2024-10-17,1440,49.2,708
+AtlasIntel,2.7,-0.8,Arizona,2024-10-17,1440,49.2,708
+AtlasIntel,2.7,-0.8,Georgia,2024-10-17,1411,49.5,698
+AtlasIntel,2.7,-0.8,Georgia,2024-10-17,1411,50.1,707
+AtlasIntel,2.7,-0.8,Michigan,2024-10-17,1529,49.6,758
+AtlasIntel,2.7,-0.8,Michigan,2024-10-17,1529,50.2,768
+AtlasIntel,2.7,-0.8,Other,2024-10-17,1171,48.4,567
+AtlasIntel,2.7,-0.8,Other,2024-10-17,1171,48.3,566
+AtlasIntel,2.7,-0.8,North Carolina,2024-10-17,1674,48.8,817
+AtlasIntel,2.7,-0.8,North Carolina,2024-10-17,1674,48.8,817
+AtlasIntel,2.7,-0.8,Pennsylvania,2024-10-17,2048,49.8,1020
+AtlasIntel,2.7,-0.8,Pennsylvania,2024-10-17,2048,49.9,1022
+AtlasIntel,2.7,-0.8,Wisconsin,2024-10-17,932,48.2,449
+AtlasIntel,2.7,-0.8,Wisconsin,2024-10-17,932,48.4,451
+Emerson,2.9,-1.1,Other,2024-10-14,1000,36.6,366
+Quinnipiac,2.8,-0.5,Georgia,2024-10-14,1328,52,691
+Quinnipiac,2.8,-0.5,Georgia,2024-10-14,1328,52,691
+Quinnipiac,2.8,-0.5,North Carolina,2024-10-14,1031,47,485
+Quinnipiac,2.8,-0.5,North Carolina,2024-10-14,1031,47,485
+Siena/NYT,3,-1.5,Pennsylvania,2024-10-10,857,47,403
+Siena/NYT,3,-1.5,Pennsylvania,2024-10-10,857,45,386
+Siena/NYT,3,-1.5,Pennsylvania,2024-10-10,857,47,403
+Siena/NYT,3,-1.5,Pennsylvania,2024-10-10,857,45,386
+Siena/NYT,3,-1.5,Arizona,2024-10-10,808,51,412
+Siena/NYT,3,-1.5,Arizona,2024-10-10,808,50,404
+Siena/NYT,3,-1.5,Arizona,2024-10-10,808,51,412
+Siena/NYT,3,-1.5,Arizona,2024-10-10,808,49,396
+Emerson,2.9,-1.1,Arizona,2024-10-08,1000,50.5,505
+Emerson,2.9,-1.1,Georgia,2024-10-08,1000,49.7,497
+Emerson,2.9,-1.1,Michigan,2024-10-08,950,49.6,471
+Emerson,2.9,-1.1,Other,2024-10-08,900,48.1,433
+Emerson,2.9,-1.1,North Carolina,2024-10-08,1000,49.9,499
+Emerson,2.9,-1.1,Pennsylvania,2024-10-08,1000,49.7,497
+Emerson,2.9,-1.1,Wisconsin,2024-10-08,1000,49.9,499
+Siena/NYT,3,-1.5,Other,2024-10-08,656,57,374
+Siena/NYT,3,-1.5,Other,2024-10-08,656,56,367
+Siena/NYT,3,-1.5,Other,2024-10-08,656,57,374
+Siena/NYT,3,-1.5,Other,2024-10-08,656,56,367
+Quinnipiac,2.8,-0.5,Michigan,2024-10-07,1007,50,504
+Quinnipiac,2.8,-0.5,Michigan,2024-10-07,1007,51,514
+Quinnipiac,2.8,-0.5,Pennsylvania,2024-10-07,1412,46,650
+Quinnipiac,2.8,-0.5,Pennsylvania,2024-10-07,1412,47,664
+Quinnipiac,2.8,-0.5,Wisconsin,2024-10-07,1073,48,515
+Quinnipiac,2.8,-0.5,Wisconsin,2024-10-07,1073,49,526
+Siena/NYT,3,-1.5,Other,2024-10-06,622,55,342
+Siena/NYT,3,-1.5,Other,2024-10-06,622,53,330
+Siena/NYT,3,-1.5,Other,2024-10-06,622,54,336
+Siena/NYT,3,-1.5,Other,2024-10-06,622,53,330
+Siena/NYT,3,-1.5,Other,2024-10-04,617,50,308
+Siena/NYT,3,-1.5,Other,2024-10-04,617,49,302
+Siena/NYT,3,-1.5,Other,2024-10-04,617,50,308
+Siena/NYT,3,-1.5,Other,2024-10-04,617,48,296
+Quinnipiac,2.8,-0.5,North Carolina,2024-09-29,953,49,467
+Quinnipiac,2.8,-0.5,North Carolina,2024-09-29,953,49,467
+Quinnipiac,2.8,-0.5,Georgia,2024-09-29,942,50,471
+Quinnipiac,2.8,-0.5,Georgia,2024-09-29,942,50,471
+Emerson,2.9,-1.1,Arizona,2024-09-28,920,51.7,476
+Emerson,2.9,-1.1,North Carolina,2024-09-28,850,49.9,424
+Emerson,2.9,-1.1,Pennsylvania,2024-09-28,1000,48.8,488
+Siena/NYT,3,-1.5,Other,2024-09-26,680,42,286
+Siena/NYT,3,-1.5,Other,2024-09-26,680,41,279
+Siena/NYT,3,-1.5,Other,2024-09-26,680,43,292
+Siena/NYT,3,-1.5,Other,2024-09-26,680,42,286
+Siena/NYT,3,-1.5,Michigan,2024-09-26,688,47,323
+Siena/NYT,3,-1.5,Michigan,2024-09-26,688,46,316
+Siena/NYT,3,-1.5,Michigan,2024-09-26,688,47,323
+Siena/NYT,3,-1.5,Michigan,2024-09-26,688,46,316
+Siena/NYT,3,-1.5,Other,2024-09-26,687,49,337
+Siena/NYT,3,-1.5,Other,2024-09-26,687,47,323
+Siena/NYT,3,-1.5,Other,2024-09-26,687,50,344
+Siena/NYT,3,-1.5,Other,2024-09-26,687,49,337
+Siena/NYT,3,-1.5,Wisconsin,2024-09-26,680,47,320
+Siena/NYT,3,-1.5,Wisconsin,2024-09-26,680,45,306
+Siena/NYT,3,-1.5,Wisconsin,2024-09-26,680,47,320
+Siena/NYT,3,-1.5,Wisconsin,2024-09-26,680,46,313
+Emerson,2.9,-1.1,Other,2024-09-25,1000,41.6,416
+AtlasIntel,2.7,-0.8,Arizona,2024-09-25,946,49.7,470
+AtlasIntel,2.7,-0.8,Arizona,2024-09-25,946,49.8,471
+AtlasIntel,2.7,-0.8,Michigan,2024-09-25,918,50.4,463
+AtlasIntel,2.7,-0.8,Michigan,2024-09-25,918,50.6,465
+AtlasIntel,2.7,-0.8,Other,2024-09-25,858,47.7,409
+AtlasIntel,2.7,-0.8,Other,2024-09-25,858,47.7,409
+AtlasIntel,2.7,-0.8,Pennsylvania,2024-09-25,1775,50.6,898
+AtlasIntel,2.7,-0.8,Pennsylvania,2024-09-25,1775,51,905
+AtlasIntel,2.7,-0.8,Wisconsin,2024-09-25,1077,49.6,534
+AtlasIntel,2.7,-0.8,Wisconsin,2024-09-25,1077,49.7,535
+AtlasIntel,2.7,-0.8,North Carolina,2024-09-25,1173,47.3,555
+AtlasIntel,2.7,-0.8,North Carolina,2024-09-25,1173,48.1,564
+AtlasIntel,2.7,-0.8,Georgia,2024-09-25,1200,49.3,592
+AtlasIntel,2.7,-0.8,Georgia,2024-09-25,1200,49.6,595
+Emerson,2.9,-1.1,Other,2024-09-24,950,52.3,497
+Emerson,2.9,-1.1,Other,2024-09-24,860,46.2,397
+Beacon/Shaw,2.8,-1.1,Arizona,2024-09-24,1021,49,500
+Beacon/Shaw,2.8,-1.1,Arizona,2024-09-24,764,50,382
+Beacon/Shaw,2.8,-1.1,Arizona,2024-09-24,1021,50,510
+Beacon/Shaw,2.8,-1.1,Arizona,2024-09-24,764,51,390
+Beacon/Shaw,2.8,-1.1,Georgia,2024-09-24,1006,47,473
+Beacon/Shaw,2.8,-1.1,Georgia,2024-09-24,707,48,339
+Beacon/Shaw,2.8,-1.1,Georgia,2024-09-24,1006,48,483
+Beacon/Shaw,2.8,-1.1,Georgia,2024-09-24,707,48,339
+Beacon/Shaw,2.8,-1.1,North Carolina,2024-09-24,787,49,386
+Beacon/Shaw,2.8,-1.1,North Carolina,2024-09-24,991,47,466
+Beacon/Shaw,2.8,-1.1,North Carolina,2024-09-24,787,50,394
+Beacon/Shaw,2.8,-1.1,North Carolina,2024-09-24,991,48,476
+Beacon/Shaw,2.8,-1.1,Pennsylvania,2024-09-24,775,48,372
+Beacon/Shaw,2.8,-1.1,Pennsylvania,2024-09-24,1021,46,470
+Beacon/Shaw,2.8,-1.1,Pennsylvania,2024-09-24,775,49,380
+Beacon/Shaw,2.8,-1.1,Pennsylvania,2024-09-24,1021,48,490
+Siena/NYT,3,-1.5,Arizona,2024-09-21,713,49,349
+Siena/NYT,3,-1.5,Arizona,2024-09-21,713,50,356
+Siena/NYT,3,-1.5,Arizona,2024-09-21,713,47,335
+Siena/NYT,3,-1.5,Arizona,2024-09-21,713,48,342
+Siena/NYT,3,-1.5,Georgia,2024-09-21,682,48,327
+Siena/NYT,3,-1.5,Georgia,2024-09-21,682,49,334
+Siena/NYT,3,-1.5,Georgia,2024-09-21,682,46,314
+Siena/NYT,3,-1.5,Georgia,2024-09-21,682,47,321
+Siena/NYT,3,-1.5,North Carolina,2024-09-21,682,48,327
+Siena/NYT,3,-1.5,North Carolina,2024-09-21,682,49,334
+Siena/NYT,3,-1.5,North Carolina,2024-09-21,682,46,314
+Siena/NYT,3,-1.5,North Carolina,2024-09-21,682,47,321
+Emerson,2.9,-1.1,Arizona,2024-09-18,868,49.8,432
+Emerson,2.9,-1.1,Georgia,2024-09-18,975,50.3,490
+Emerson,2.9,-1.1,Michigan,2024-09-18,875,49.1,430
+Emerson,2.9,-1.1,Other,2024-09-18,895,49,439
+Emerson,2.9,-1.1,Pennsylvania,2024-09-18,880,49.3,434
+Emerson,2.9,-1.1,North Carolina,2024-09-18,1000,49.3,493
+Emerson,2.9,-1.1,Wisconsin,2024-09-18,1000,50.3,503
+Quinnipiac,2.8,-0.5,Pennsylvania,2024-09-16,1331,45,599
+Quinnipiac,2.8,-0.5,Pennsylvania,2024-09-16,1331,46,612
+Quinnipiac,2.8,-0.5,Michigan,2024-09-16,905,45,407
+Quinnipiac,2.8,-0.5,Michigan,2024-09-16,905,46,416
+Quinnipiac,2.8,-0.5,Wisconsin,2024-09-16,1075,47,505
+Quinnipiac,2.8,-0.5,Wisconsin,2024-09-16,1075,48,516
+Siena/NYT,3,-1.5,Pennsylvania,2024-09-16,1082,46,498
+Siena/NYT,3,-1.5,Pennsylvania,2024-09-16,1082,46,498
+Siena/NYT,3,-1.5,Pennsylvania,2024-09-16,1082,45,487
+Siena/NYT,3,-1.5,Pennsylvania,2024-09-16,1082,45,487
+Emerson,2.9,-1.1,Other,2024-09-13,890,33.3,296
+Emerson,2.9,-1.1,Other,2024-09-13,850,55.2,469
+Emerson,2.9,-1.1,Other,2024-09-13,1000,57.9,579
+Quinnipiac,2.8,-0.5,North Carolina,2024-09-08,940,46,432
+Quinnipiac,2.8,-0.5,North Carolina,2024-09-08,940,47,442
+Quinnipiac,2.8,-0.5,Georgia,2024-09-08,969,49,475
+Quinnipiac,2.8,-0.5,Georgia,2024-09-08,969,49,475
+Emerson,2.9,-1.1,Other,2024-09-05,815,38,310
+Emerson,2.9,-1.1,Other,2024-09-05,815,51.1,416
+Emerson,2.9,-1.1,Other,2024-09-05,845,50.9,430
+Emerson,2.9,-1.1,Other,2024-09-05,945,54.3,513
+Emerson,2.9,-1.1,Arizona,2024-08-28,720,51.2,369
+Emerson,2.9,-1.1,Michigan,2024-08-28,800,47.6,381
+Emerson,2.9,-1.1,Other,2024-08-28,1168,48.8,570
+Emerson,2.9,-1.1,Pennsylvania,2024-08-28,950,49.4,469
+Emerson,2.9,-1.1,Wisconsin,2024-08-28,850,49.8,423
+Emerson,2.9,-1.1,North Carolina,2024-08-28,775,49.9,387
+Emerson,2.9,-1.1,Georgia,2024-08-28,800,49,392
+Beacon/Shaw,2.8,-1.1,Arizona,2024-08-26,1014,47,477
+Beacon/Shaw,2.8,-1.1,Arizona,2024-08-26,1014,49,497
+Beacon/Shaw,2.8,-1.1,Georgia,2024-08-26,1014,46,466
+Beacon/Shaw,2.8,-1.1,Georgia,2024-08-26,1014,48,487
+Beacon/Shaw,2.8,-1.1,Other,2024-08-26,1026,46,472
+Beacon/Shaw,2.8,-1.1,Other,2024-08-26,1026,48,492
+Beacon/Shaw,2.8,-1.1,North Carolina,2024-08-26,999,48,480
+Beacon/Shaw,2.8,-1.1,North Carolina,2024-08-26,999,50,500
+Emerson,2.9,-1.1,Other,2024-08-22,965,46.4,448
+Emerson,2.9,-1.1,Other,2024-08-22,965,40.2,388
+Siena/NYT,3,-1.5,Other,2024-08-15,677,48,325
+Siena/NYT,3,-1.5,Other,2024-08-15,677,48,325
+Siena/NYT,3,-1.5,Other,2024-08-15,677,45,305
+Siena/NYT,3,-1.5,Other,2024-08-15,677,46,311
+Siena/NYT,3,-1.5,Arizona,2024-08-15,677,45,305
+Siena/NYT,3,-1.5,Arizona,2024-08-15,677,45,305
+Siena/NYT,3,-1.5,Arizona,2024-08-15,677,42,284
+Siena/NYT,3,-1.5,Arizona,2024-08-15,677,43,291
+Emerson,2.9,-1.1,Pennsylvania,2024-08-14,1000,50.7,507
+Emerson,2.9,-1.1,Pennsylvania,2024-08-14,1000,47.4,474
+Siena/NYT,3,-1.5,North Carolina,2024-08-14,655,46,301
+Siena/NYT,3,-1.5,North Carolina,2024-08-14,655,47,308
+Siena/NYT,3,-1.5,North Carolina,2024-08-14,655,42,275
+Siena/NYT,3,-1.5,North Carolina,2024-08-14,655,44,288
+Siena/NYT,3,-1.5,Georgia,2024-08-14,661,51,337
+Siena/NYT,3,-1.5,Georgia,2024-08-14,661,50,330
+Siena/NYT,3,-1.5,Georgia,2024-08-14,661,47,311
+Siena/NYT,3,-1.5,Georgia,2024-08-14,661,47,311
+Quinnipiac,2.8,-0.5,Pennsylvania,2024-08-12,1738,45,782
+Quinnipiac,2.8,-0.5,Pennsylvania,2024-08-12,1738,47,817
+Siena/NYT,3,-1.5,Pennsylvania,2024-08-09,693,46,319
+Siena/NYT,3,-1.5,Pennsylvania,2024-08-09,693,46,319
+Siena/NYT,3,-1.5,Pennsylvania,2024-08-09,693,43,298
+Siena/NYT,3,-1.5,Pennsylvania,2024-08-09,693,44,305
+Siena/NYT,3,-1.5,Michigan,2024-08-08,619,48,297
+Siena/NYT,3,-1.5,Michigan,2024-08-08,619,46,285
+Siena/NYT,3,-1.5,Michigan,2024-08-08,619,43,266
+Siena/NYT,3,-1.5,Michigan,2024-08-08,619,43,266
+Siena/NYT,3,-1.5,Wisconsin,2024-08-08,661,46,304
+Siena/NYT,3,-1.5,Wisconsin,2024-08-08,661,46,304
+Siena/NYT,3,-1.5,Wisconsin,2024-08-08,661,42,278
+Siena/NYT,3,-1.5,Wisconsin,2024-08-08,661,43,284
+Emerson,2.9,-1.1,Other,2024-08-06,1000,57.5,575
+Emerson,2.9,-1.1,Other,2024-08-06,1000,53.5,535
+Emerson,2.9,-1.1,Other,2024-07-28,1000,47.6,476
+Emerson,2.9,-1.1,Other,2024-07-28,1000,41.4,414
+Beacon/Shaw,2.8,-1.1,Wisconsin,2024-07-24,1046,46,481
+Beacon/Shaw,2.8,-1.1,Wisconsin,2024-07-24,1046,50,523
+Beacon/Shaw,2.8,-1.1,Wisconsin,2024-07-24,1046,50,523
+Beacon/Shaw,2.8,-1.1,Wisconsin,2024-07-24,1046,49,513
+Beacon/Shaw,2.8,-1.1,Pennsylvania,2024-07-24,1034,43,445
+Beacon/Shaw,2.8,-1.1,Pennsylvania,2024-07-24,1034,49,507
+Beacon/Shaw,2.8,-1.1,Pennsylvania,2024-07-24,1034,49,507
+Beacon/Shaw,2.8,-1.1,Pennsylvania,2024-07-24,1034,44,455
+Beacon/Shaw,2.8,-1.1,Other,2024-07-24,1071,41,439
+Beacon/Shaw,2.8,-1.1,Other,2024-07-24,1071,46,493
+Beacon/Shaw,2.8,-1.1,Other,2024-07-24,1071,46,493
+Beacon/Shaw,2.8,-1.1,Other,2024-07-24,1071,45,482
+Beacon/Shaw,2.8,-1.1,Michigan,2024-07-24,1012,45,455
+Beacon/Shaw,2.8,-1.1,Michigan,2024-07-24,1012,49,496
+Beacon/Shaw,2.8,-1.1,Michigan,2024-07-24,1012,46,466
+Beacon/Shaw,2.8,-1.1,Michigan,2024-07-24,1012,48,486
+Emerson,2.9,-1.1,Arizona,2024-07-23,800,52.6,421
+Emerson,2.9,-1.1,Arizona,2024-07-23,800,47.5,380
+Emerson,2.9,-1.1,Georgia,2024-07-23,800,51.1,409
+Emerson,2.9,-1.1,Georgia,2024-07-23,800,45.9,367
+Emerson,2.9,-1.1,Michigan,2024-07-23,800,50.9,407
+Emerson,2.9,-1.1,Michigan,2024-07-23,800,44.1,353
+Emerson,2.9,-1.1,Wisconsin,2024-07-23,845,49.4,417
+Emerson,2.9,-1.1,Wisconsin,2024-07-23,845,44.9,379
+Emerson,2.9,-1.1,Pennsylvania,2024-07-23,850,51.1,434
+Emerson,2.9,-1.1,Pennsylvania,2024-07-23,850,46.1,392
