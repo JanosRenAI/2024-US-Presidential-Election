@@ -1,11 +1,10 @@
 #### Preamble ####
-# Purpose: Simulates a dataset of polling data for Australian electoral divisions
-# Author: Xuanang Ren
-# Date: 26 September 2024
-# Contact: rohan.alexander@utoronto.ca
+# Purpose: Simulates a dataset that contains
+# Author: Xuanang Ren, Caichen Sun
+# Date: 1 November 2024
+# Contact: ang.ren@mail.utoronto.ca
 # License: MIT
-# Prerequisites: The `tidyverse` package must be installed
-# Notes: Run within the `starter_folder` R project.
+# Prerequisites: The `tidyverse`, `dplyr`,  `readr` package must be installed
 
 #### Workspace setup ####
 library(tidyverse)

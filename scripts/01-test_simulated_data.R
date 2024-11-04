@@ -1,14 +1,13 @@
 #### Preamble ####
-# Purpose: Tests the structure and validity of the simulated Australian 
-  #electoral divisions dataset.
-# Author: Xuanang Ren
-# Date: 26 September 2024
-# Contact: rohan.alexander@utoronto.ca
+# Purpose: Tests the structure and validity of the simulated U.S. presidential polling data
+#electoral divisions dataset.
+# Author: Xuanang Ren, Caichen Sun
+# Date: 1 November 2024
+# Contact: ang.ren@mail.utoronto.ca
 # License: MIT
 # Pre-requisites: 
-  # - The `tidyverse` package must be installed and loaded
+  # - The `tidyverse`, `testthat`  package must be installed and loaded
   # - 00-simulate_data.R must have been run
-# Any other information needed? Make sure you are in the `starter_folder` rproj
 
 
 #### Workspace setup ####

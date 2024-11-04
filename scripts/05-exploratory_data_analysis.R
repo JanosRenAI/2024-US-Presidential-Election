@@ -1,11 +1,10 @@
 #### Preamble ####
-# Purpose: Models... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 11 February 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Visualize the cleaned data
+# Author: Xuanang Ren, Caichen Sun
+# Date: 1 November 2024
+# Contact: ang.ren@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: The `tidyverse`, `rstanarm`, `ggplot2` ,`janitor`, `modelsummary` packages must be installed and loaded
 
 
 #### Workspace setup ####
@@ -17,7 +16,7 @@ library(modelsummary)
 
 #### Read data ####
 # Load cleaned data
-analysis_data <- read_parquet("data/02-analysis_data/analysis_data.parquet") |>
+analysis_data <- read_parquet("data/02-analysis_data/trump_analysis_data.parquet") |>
   clean_names()
 
 # Display the structure of data
@@ -40,6 +39,13 @@ ggplot(analysis_data, aes(x = pct)) +
   labs(title = "Distribution of Support for Donald Trump", x = "Support (%)", y = "Count") +
   theme_minimal()
 
+# Distribution of Actual Supporter Count of Trump 
+ggplot(analysis_data, aes(x = num_trump)) +
+  geom_histogram(binwidth = 20, fill = "blue", color = "black") +
+  labs(title = "Histogram of Trump Votes", x = "Number of Trump Votes", y = "Frequency") +
+  theme_minimal()
+
+
 # Distribution of sample size
 ggplot(analysis_data, aes(x = sample_size)) +
   geom_histogram(binwidth = 100, fill = "green", color = "black", alpha = 0.7) +
@@ -58,19 +64,7 @@ ggplot(analysis_data, aes(x = pct, y = numeric_grade)) +
   labs(title = "Relationship between Support Percentage and Pollster Grade", x = "Support (%)", y = "Pollster Grade") +
   theme_minimal()
 
-# Scatter plot of sample size vs. support percentage, faceted by methodology
-analysis_data |>
-  filter(pct > 1) |>
-  ggplot(aes(x = sample_size, y = pct, color = pollster)) +
-  geom_point(size = 1, alpha = 0.3) +
-  facet_wrap(vars(methodology)) +
-  labs(title = "Sample Size vs. Support Percentage by Methodology", x = "Sample Size", y = "Support (%)") +
-  theme_classic()
 
-#### Basic Starter Models ####
-# Logistic regression model: Examining state, pollster grade, and methodology's impact on support percentage
-logistic_reg <- glm(pct / 100 ~ state + numeric_grade + methodology, 
-                    data = analysis_data, family = quasibinomial)
 
 # Summary of logistic regression model
 modelsummary(logistic_reg)
