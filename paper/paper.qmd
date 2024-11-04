@@ -22,7 +22,6 @@ bibliography: references.bib
 
 library(tidyverse)
 library(palmerpenguins)
-library(tidyverse)
 library(arrow)
 library(dplyr)
 library(readr)
